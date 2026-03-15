@@ -1,7 +1,7 @@
 {
   "name": "4travel",
   "short_name": "4travel",
-  "start_url": "/4travel/4travel.html",
+  "start_url": "/4travel/",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#1e40af",

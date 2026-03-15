@@ -1,7 +1,9 @@
 const CACHE = '4travel-v1';
 const FILES = [
-  '/4travel/4travel.html',
-  '/4travel/sw.js'
+  '/4travel/',
+  '/4travel/index.html',
+  '/4travel/sw.js',
+  '/4travel/manifest.json'
 ];
 
 self.addEventListener('install', function(e) {
