@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1e40af">
+<title>4travel</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  color: #0f172a;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+header {
+  background: #1e40af;
+  color: #fff;
+  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+header h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 47px;
+  z-index: 19;
+  overflow-x: auto;
+}
+.tab {
+  flex: 1;
+  min-width: 60px;
+  padding: 11px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  background: none;
+  color: #64748b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.tab.active { color: #1e40af; border-bottom-color: #1e40af; }
+
+.page { display: none; padding: 14px 12px; }
+.page.active { display: block; }
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-size: 15px;
+  color: #0f172a;
+  background: #fff;
+  margin-bottom: 12px;
+  outline: none;
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus { border-color: #1e40af; }
+
+input[type="file"] {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #475569;
+  background: #fff;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+/* Чекбокс-строка */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+.checkbox-row.checked {
+  border-color: #1e40af;
+  background: #eff6ff;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #1e40af;
+}
+.checkbox-row span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.hint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.btn:last-child { margin-bottom: 0; }
+.btn:active { opacity: 0.8; }
+.btn-primary { background: #1e40af; color: #fff; }
+.btn-dark    { background: #0f172a; color: #fff; }
+.btn-danger  { background: #dc2626; color: #fff; }
+.btn-cancel  { background: #f1f5f9; color: #64748b; }
+
+.btn-sm {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+.btn-edit { background: #dbeafe; color: #1e40af; }
+.btn-del  { background: #fee2e2; color: #dc2626; margin-left: 6px; }
+
+/* Поиск */
+.search-box { position: relative; margin-bottom: 12px; }
+.search-box input {
+  padding-left: 38px;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+/* Карточка результата */
+.result-card {
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  border: 2px solid;
+}
+.result-ok   { background: #f0fdf4; border-color: #86efac; }
+.result-warn { background: #fffbeb; border-color: #fcd34d; }
+.result-no   { background: #fef2f2; border-color: #fca5a5; }
+
+.result-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.result-ok   .result-title { color: #166534; }
+.result-warn .result-title { color: #92400e; }
+.result-no   .result-title { color: #991b1b; }
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.result-row:last-child { border-bottom: none; }
+.result-row .key { color: #64748b; flex-shrink: 0; }
+.result-row .val { font-weight: 600; color: #0f172a; text-align: right; margin-left: 8px; }
+
+/* Список */
+.car-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.car-item:last-child { border-bottom: none; }
+.car-info .plate {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 1px;
+  color: #0f172a;
+}
+.car-info .name { font-size: 13px; color: #475569; margin-top: 2px; }
+.car-info .meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.badge-perm  { background: #dbeafe; color: #1e40af; }
+.badge-temp  { background: #fef3c7; color: #92400e; }
+.badge-exp   { background: #fee2e2; color: #991b1b; }
+.badge-24h   { background: #dcfce7; color: #166534; }
+
+.empty { color: #94a3b8; font-size: 14px; text-align: center; padding: 20px 0; }
+
+/* Фильтры */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.filter-btn {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+}
+.filter-btn.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+
+/* Счётчики */
+.stats-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.stat-box {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.stat-box .n { font-size: 26px; font-weight: 700; color: #1e40af; }
+.stat-box .n.red { color: #dc2626; }
+.stat-box .l { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+.section-title {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* Модал */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 50;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 16px 36px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #0f172a; }
+
+/* Тост */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #0f172a;
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 200;
+  transition: transform 0.3s;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+
+<link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/4travel/sw.js');
+  });
+}
+</script>
+</head>
+<body>
+
+<header><h1>4travel</h1></header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('search',this)">Поиск</button>
+  <button class="tab" onclick="showTab('list',this)">Список</button>
+  <button class="tab" onclick="showTab('backup',this)">Экспорт/Импорт</button>
+  <button class="tab" onclick="openAddModal()">+ Добавить</button>
+</div>
+
+<!-- ПОИСК -->
+<div id="page-search" class="page active">
+  <div class="card">
+    <div class="section-title">Проверка по номеру авто</div>
+    <div class="search-box">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Введите номер авто"
+        autocomplete="off" autocapitalize="characters"
+        oninput="this.value=this.value.toUpperCase(); doSearch()">
+    </div>
+    <div id="searchResult"></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="n" id="statTotal">0</div>
+      <div class="l">Всего</div>
+    </div>
+    <div class="stat-box">
+      <div class="n" id="statActive">0</div>
+      <div class="l">Активных</div>
+    </div>
+    <div class="stat-box">
+      <div class="n red" id="statExp">0</div>
+      <div class="l">Истекших</div>
+    </div>
+  </div>
+</div>
+
+<!-- СПИСОК -->
+<div id="page-list" class="page">
+  <div class="search-box" style="margin-bottom:10px">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="listSearchInput" placeholder="Поиск по номеру или названию"
+      autocomplete="off" autocapitalize="characters"
+      oninput="this.value=this.value.toUpperCase(); renderList()"
+      style="padding-left:38px;margin-bottom:0;font-size:15px">
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Все</button>
+    <button class="filter-btn" onclick="setFilter('perm',this)">Постоянные</button>
+    <button class="filter-btn" onclick="setFilter('temp',this)">Временные</button>
+    <button class="filter-btn" onclick="setFilter('exp',this)">Истекшие</button>
+  </div>
+  <div class="card">
+    <div id="carList"><div class="empty">Нет записей</div></div>
+  </div>
+</div>
+
+<!-- РЕЗЕРВНАЯ КОПИЯ -->
+<div id="page-backup" class="page">
+  <div class="card">
+    <h2 style="font-size:15px;font-weight:700;margin-bottom:6px">Экспорт</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:14px">Сохраняет все пропуска в JSON-файл на устройство. Используй для переноса на другой телефон или как резервную копию.</p>
+    <button class="btn btn-primary" onclick="exportData()">Скачать файл базы</button>
+  </div>
+  <div class="card">
+    <h2 style="font-size:15px;font-weight:700;margin-bottom:6px">Импорт</h2>
+    <p style="font-size:13px;color:#64748b;margin-bottom:14px">Загружает пропуска из ранее сохранённого файла. Текущие записи будут <b>заменены</b>.</p>
+    <label>Выбрать файл</label>
+    <input type="file" id="importFile" accept=".json">
+    <button class="btn btn-dark" onclick="importData()">Загрузить из файла</button>
+  </div>
+</div>
+
+<!-- МОДАЛ -->
+<div class="modal-bg" id="modalBg" onclick="closeModalBg(event)">
+  <div class="modal">
+    <h2 id="modalTitle">Новый пропуск</h2>
+
+    <label>Марка / название авто</label>
+    <input type="text" id="fName" placeholder="Toyota Camry">
+
+    <label>Гос. номер</label>
+    <input type="text" id="fPlate" placeholder="А000АА77"
+      autocapitalize="characters"
+      oninput="this.value=this.value.toUpperCase()">
+
+    <label>Компания</label>
+    <input type="text" id="fCompany" placeholder="Необязательно">
+
+    <label>Номер проезда</label>
+    <input type="text" id="fPass" placeholder="Необязательно">
+
+    <label>Номер участка</label>
+    <input type="text" id="fSector" placeholder="Необязательно">
+
+    <label>Тип пропуска</label>
+    <select id="fType">
+      <option value="perm">Постоянный</option>
+      <option value="temp">Временный</option>
+    </select>
+
+    <label style="margin-top:4px">Действует до</label>
+    <input type="date" id="fDate">
+    <p class="hint">Оставьте пустым, если срок не ограничен</p>
+
+    <label>Режим доступа</label>
+    <div class="checkbox-row" id="checkRow" onclick="toggleCheck()">
+      <input type="checkbox" id="f24h" onclick="event.stopPropagation(); syncCheckRow()">
+      <span>Круглосуточный доступ</span>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveCar()">Сохранить</button>
+    <button class="btn btn-danger" id="deleteBtn" style="display:none" onclick="deleteCar()">Удалить пропуск</button>
+    <button class="btn btn-cancel" onclick="closeModal()">Отмена</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var DB = '4travel_v1';
+var currentFilter = 'all';
+var editingId = null;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(DB)) || []; } catch(e) { return []; }
+}
+function save(arr) { localStorage.setItem(DB, JSON.stringify(arr)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function today() {
+  var d = new Date();
+  return d.getFullYear() + '-'
+    + String(d.getMonth()+1).padStart(2,'0') + '-'
+    + String(d.getDate()).padStart(2,'0');
+}
+
+function fmtDateRu(s) {
+  if (!s) return '';
+  var p = s.split('-');
+  return p[2] + '.' + p[1] + '.' + p[0];
+}
+
+function isExpired(car) {
+  if (!car.date) return false;
+  return car.date < today();
+}
+
+function daysLeft(date) {
+  return Math.ceil((new Date(date) - new Date(today())) / 86400000);
+}
+
+/* Чекбокс */
+function toggleCheck() {
+  var cb = document.getElementById('f24h');
+  cb.checked = !cb.checked;
+  syncCheckRow();
+}
+function syncCheckRow() {
+  var cb  = document.getElementById('f24h');
+  var row = document.getElementById('checkRow');
+  row.classList.toggle('checked', cb.checked);
+}
+
+/* ---------- ПОИСК ---------- */
+function doSearch() {
+  var q = document.getElementById('searchInput').value.trim();
+  var div = document.getElementById('searchResult');
+  if (!q) { div.innerHTML = ''; return; }
+
+  var data = load();
+  var found = data.filter(function(c) { return c.plate.indexOf(q) !== -1; });
+
+  if (found.length === 0) {
+    div.innerHTML = '<div class="result-card result-no">'
+      + '<div class="result-title">&#10060; Не найден</div>'
+      + '<div style="font-size:13px;color:#991b1b">Номер <b>' + q + '</b> отсутствует в базе</div>'
+      + '</div>';
+    return;
+  }
+
+  div.innerHTML = found.map(function(c) {
+    var exp   = isExpired(c);
+    var cls   = exp ? 'result-warn' : 'result-ok';
+    var icon  = exp ? '&#9888;&#65039;' : '&#9989;';
+    var title = exp ? 'Пропуск истёк' : 'Пропуск действителен';
+    var typeName = c.type === 'perm' ? 'Постоянный' : 'Временный';
+
+    var rows = '';
+    rows += '<div class="result-row"><span class="key">Авто</span><span class="val">' + c.name + '</span></div>';
+    rows += '<div class="result-row"><span class="key">Гос. номер</span><span class="val">' + c.plate + '</span></div>';
+    if (c.company) rows += '<div class="result-row"><span class="key">Компания</span><span class="val">' + c.company + '</span></div>';
+    if (c.pass)    rows += '<div class="result-row"><span class="key">Проезд №</span><span class="val">' + c.pass + '</span></div>';
+    if (c.sector)  rows += '<div class="result-row"><span class="key">Участок</span><span class="val">' + c.sector + '</span></div>';
+    rows += '<div class="result-row"><span class="key">Тип</span><span class="val">' + typeName + '</span></div>';
+    rows += '<div class="result-row"><span class="key">Доступ</span><span class="val">' + (c.h24 ? '&#127774; Круглосуточно' : 'По расписанию') + '</span></div>';
+    if (c.date) {
+      var dl    = daysLeft(c.date);
+      var dlStr = exp ? 'истёк ' + Math.abs(dl) + ' дн. назад' : 'осталось ' + dl + ' дн.';
+      rows += '<div class="result-row"><span class="key">До</span><span class="val">' + fmtDateRu(c.date) + ' (' + dlStr + ')</span></div>';
+    }
+
+    return '<div class="result-card ' + cls + '">'
+      + '<div class="result-title">' + icon + ' ' + title + '</div>'
+      + rows
+      + '</div>';
+  }).join('');
+}
+
+/* ---------- СПИСОК ---------- */
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  var data = load();
+  var q = (document.getElementById('listSearchInput') ? document.getElementById('listSearchInput').value.trim() : '');
+  var filtered = data.filter(function(c) {
+    if (currentFilter === 'perm') { if (c.type !== 'perm' || isExpired(c)) return false; }
+    else if (currentFilter === 'temp') { if (c.type !== 'temp' || isExpired(c)) return false; }
+    else if (currentFilter === 'exp')  { if (!isExpired(c)) return false; }
+    if (!q) return true;
+    return c.plate.indexOf(q) !== -1 || c.name.toUpperCase().indexOf(q) !== -1 || (c.company && c.company.toUpperCase().indexOf(q) !== -1);
+  });
+
+  var div = document.getElementById('carList');
+  if (filtered.length === 0) { div.innerHTML = '<div class="empty">Нет записей</div>'; return; }
+
+  filtered.sort(function(a,b) { return a.plate.localeCompare(b.plate); });
+
+  div.innerHTML = filtered.map(function(c) {
+    var exp = isExpired(c);
+    var typeBadge = exp
+      ? '<span class="badge badge-exp">Истёк</span>'
+      : (c.type === 'perm'
+          ? '<span class="badge badge-perm">Постоянный</span>'
+          : '<span class="badge badge-temp">Временный</span>');
+    var h24Badge = c.h24 ? '<span class="badge badge-24h">24ч</span>' : '';
+
+    var name = c.name;
+    if (c.company) name += ' · ' + c.company;
+
+    var meta = [];
+    if (c.pass)   meta.push('Проезд: ' + c.pass);
+    if (c.sector) meta.push('Участок: ' + c.sector);
+    if (c.date)   meta.push('до ' + fmtDateRu(c.date));
+    var metaStr = meta.join(' · ');
+
+    return '<div class="car-item">'
+      + '<div class="car-info">'
+      + '<div class="plate">' + c.plate + typeBadge + h24Badge + '</div>'
+      + '<div class="name">' + name + '</div>'
+      + (metaStr ? '<div class="meta">' + metaStr + '</div>' : '')
+      + '</div>'
+      + '<div style="display:flex;flex-shrink:0;margin-left:8px;align-items:center">'
+      + '<button class="btn-sm btn-edit" onclick="openEdit(\'' + c.id + '\')">Изм.</button>'
+      + '<button class="btn-sm btn-del" onclick="quickDelete(\'' + c.id + '\')">&#128465;</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderStats() {
+  var data = load();
+  var exp = data.filter(isExpired).length;
+  document.getElementById('statTotal').textContent  = data.length;
+  document.getElementById('statActive').textContent = data.length - exp;
+  document.getElementById('statExp').textContent    = exp;
+}
+
+/* ---------- МОДАЛ ---------- */
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent  = 'Новый пропуск';
+  document.getElementById('fName').value    = '';
+  document.getElementById('fPlate').value   = '';
+  document.getElementById('fCompany').value = '';
+  document.getElementById('fPass').value    = '';
+  document.getElementById('fSector').value  = '';
+  document.getElementById('fType').value    = 'perm';
+  document.getElementById('fDate').value    = '';
+  document.getElementById('f24h').checked   = false;
+  document.getElementById('checkRow').classList.remove('checked');
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function openEdit(id) {
+  var c = load().find(function(x) { return x.id === id; });
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent  = 'Редактировать';
+  document.getElementById('fName').value    = c.name;
+  document.getElementById('fPlate').value   = c.plate;
+  document.getElementById('fCompany').value = c.company || '';
+  document.getElementById('fPass').value    = c.pass || '';
+  document.getElementById('fSector').value  = c.sector || '';
+  document.getElementById('fType').value    = c.type;
+  document.getElementById('fDate').value    = c.date || '';
+  document.getElementById('f24h').checked   = !!c.h24;
+  document.getElementById('checkRow').classList.toggle('checked', !!c.h24);
+  document.getElementById('deleteBtn').style.display = 'block';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+function closeModalBg(e) { if (e.target === document.getElementById('modalBg')) closeModal(); }
+
+function saveCar() {
+  var name    = document.getElementById('fName').value.trim();
+  var plate   = document.getElementById('fPlate').value.trim().toUpperCase();
+  var company = document.getElementById('fCompany').value.trim();
+  var pass    = document.getElementById('fPass').value.trim();
+  var sector  = document.getElementById('fSector').value.trim();
+  var type    = document.getElementById('fType').value;
+  var date    = document.getElementById('fDate').value;
+  var h24     = document.getElementById('f24h').checked;
+
+  if (!name || !plate) { showToast('Заполните: авто и номер'); return; }
+
+  var data = load();
+
+  if (editingId) {
+    data = data.map(function(c) {
+      return c.id === editingId
+        ? { id: c.id, name: name, plate: plate, company: company, pass: pass, sector: sector, type: type, date: date, h24: h24 }
+        : c;
+    });
+    showToast('Сохранено');
+  } else {
+    if (data.find(function(c) { return c.plate === plate; })) {
+      showToast('Такой номер уже есть в базе'); return;
+    }
+    data.push({ id: uid(), name: name, plate: plate, company: company, pass: pass, sector: sector, type: type, date: date, h24: h24 });
+    showToast('Добавлено');
+  }
+
+  save(data);
+  closeModal();
+  renderAll();
+}
+
+function deleteCar() {
+  if (!confirm('Удалить этот пропуск?')) return;
+  save(load().filter(function(c) { return c.id !== editingId; }));
+  closeModal();
+  showToast('Удалено');
+  renderAll();
+}
+
+function quickDelete(id) {
+  if (!confirm('Удалить этот пропуск?')) return;
+  save(load().filter(function(c) { return c.id !== id; }));
+  showToast('Удалено');
+  renderAll();
+}
+
+/* ---------- ЭКСПОРТ / ИМПОРТ ---------- */
+function exportData() {
+  var data = load();
+  if (data.length === 0) { showToast('База пуста — нечего экспортировать'); return; }
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  var d    = new Date();
+  a.href     = url;
+  a.download = '4travel_'
+    + d.getFullYear() + '-'
+    + String(d.getMonth()+1).padStart(2,'0') + '-'
+    + String(d.getDate()).padStart(2,'0') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Файл сохранён');
+}
+
+function importData() {
+  var file = document.getElementById('importFile').files[0];
+  if (!file) { showToast('Выберите файл'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error();
+      var cur = load().length;
+      if (!confirm('Заменить текущую базу (' + cur + ' зап.) на данные из файла (' + data.length + ' зап.)?')) return;
+      save(data);
+      document.getElementById('importFile').value = '';
+      renderAll();
+      showToast('Импортировано: ' + data.length + ' записей');
+    } catch(err) {
+      showToast('Ошибка: файл повреждён или неверный формат');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- ОБЩЕЕ ---------- */
+function renderAll() { renderList(); renderStats(); doSearch(); }
+
+function showTab(name, btn) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+renderAll();
+</script>
+</body>
+</html>
